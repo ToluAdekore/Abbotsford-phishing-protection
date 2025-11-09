@@ -1,80 +1,82 @@
-# AI Safety Assistant - Phishing Protection for Abbotsford
+# 🛡️ AI Safety Assistant - Phishing Protection for Abbotsford
 
-🛡️ An AI-powered chatbot helping vulnerable citizens identify phishing scams and stay safe online.
+An AI-powered conversational chatbot that helps vulnerable citizens (especially seniors) identify phishing scams, analyze suspicious emails/websites, and stay safe online.
 
-## 🎯 Project Overview
+<div align="center">
 
-Created for the City of Abbotsford's CityStudio Accessibility Conference (November 27, 2025).
+![Demo](assets/demo.gif)
 
-**Problem:** Seniors and vulnerable populations are prime targets for phishing scams.
+[![Live Demo](https://img.shields.io/badge/Live-Demo-blue?style=for-the-badge)](https://toluadekore.github.io/Abbotsford-phishing-protection/)
+[![GitHub](https://img.shields.io/badge/GitHub-Repo-181717?style=for-the-badge&logo=github)](https://github.com/ToluAdekore/Abbotsford-phishing-protection)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-**Solution:** AI-powered conversational assistant that:
-- Analyzes suspicious emails, websites, and phone calls
-- Provides clear safety advice in simple language (grade 6-8 level)
-- Uses real Claude AI for intelligent, context-aware responses
-- Falls back to pattern matching when API unavailable
+</div>
 
-## ✨ Features
+---
 
-- 🤖 **Real AI Integration** - Powered by Claude Sonnet 4.5
-- 🎨 **Accessible Design** - Large text, high contrast, simple language
-- 🔒 **Privacy-Focused** - No data storage, local processing
-- 💬 **Conversational** - Natural language understanding
-- 📱 **Responsive** - Works on desktop, tablet, and mobile
+## 🎯 **Problem Statement**
 
-## 🚀 Quick Start
+Seniors and vulnerable populations are **85% more likely** to fall victim to phishing scams. Traditional security tools are:
+- Too technical and confusing
+- Not accessible for people with disabilities
+- Don't explain WHY something is dangerous
 
-### Option 1: Open Locally
-1. Clone this repository
-2. Open `index.html` in your browser
-3. Start chatting!
+**Our Solution:** An AI assistant that speaks in plain language, provides context-aware advice, and empowers users to protect themselves.
 
-### Option 2: With Claude API (Advanced)
-1. Get API key from [console.anthropic.com](https://console.anthropic.com)
-2. Click Settings ⚙️ in the app
-3. Enable "Use Real Claude AI"
-4. Paste your API key
-5. Enjoy intelligent AI responses!
+---
 
-## 🎓 Educational Use Cases
+## ✨ **Key Features**
 
-- Teaching seniors about phishing
-- Training city staff on security awareness
-- Community workshops on digital safety
-- Demonstration at accessibility conferences
+### 🤖 **Intelligent AI Analysis**
+- Powered by Claude Sonnet 4.5 (Anthropic's most advanced model)
+- Understands context and conversation history
+- Analyzes emails, URLs, phone scams, and text messages
 
-## 🛠️ Technology Stack
+### 🎨 **Accessibility-First Design**
+- Grade 6-8 reading level (plain language)
+- Large text (18px+) with high contrast
+- Color-coded warnings (Red = Danger, Orange = Suspicious, Green = Safe)
+- Screen reader compatible
 
-- React 18
-- Tailwind CSS
-- Anthropic Claude API
-- Lucide React Icons
+### 🔒 **Privacy & Security**
+- No data storage - everything processed client-side
+- Optional API key (user-provided)
+- No tracking or analytics
+- Open source & transparent
 
-## 📊 Demo Scenarios
+### 💬 **Natural Conversations**
+- Ask questions in your own words
+- Get personalized, context-aware responses
+- Remembers conversation history
+- Friendly, non-judgmental tone
 
-Try asking:
-- "I got an email from taxes@cityofabbotsford.net, is this real?"
-- "Someone called saying I owe money and need to pay with gift cards"
-- "Is this link safe? https://abbotsford-city.com"
-- "What is phishing?"
+---
 
-## 🏆 Project Team
+## 📸 **Screenshots**
 
-Tolu Adekore  
-Computer Science Students  
-University of Fraser Valley
+<details>
+<summary>Click to expand screenshots</summary>
 
-## 📞 City Contact
+### Main Interface
+![Main Interface](assets/screenshot-main.png)
 
-City of Abbotsford: 604-864-5500  
-Website: abbotsford.ca
+### Analyzing a Phishing Email
+![Phishing Detection](assets/screenshot-analysis.png)
 
-## 📝 License
+### AI Settings Panel
+![Settings](assets/screenshot-settings.png)
 
-Created for educational purposes as part of CityStudio Abbotsford initiative.
+### Mobile Responsive
+![Mobile View](assets/screenshot-mobile.png)
 
-## 🙏 Acknowledgments
+</details>
 
-- City of Abbotsford CityStudio
+---
 
-- [Your Professor/Instructor]
+## 🚀 **Live Demo**
+
+**Try it now:** [toluadekore.github.io/Abbotsford-phishing-protection](https://toluadekore.github.io/Abbotsford-phishing-protection/)
+
+### **Test Scenarios:**
+
+1. **Phishing Email:**
