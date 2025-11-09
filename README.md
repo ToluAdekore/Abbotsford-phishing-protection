@@ -60,9 +60,9 @@ Try asking:
 
 ## 🏆 Project Team
 
-[Your Name/Team Names]  
+Tolu Adekore  
 Computer Science Students  
-[Your Institution]
+University of Fraser Valley
 
 ## 📞 City Contact
 
@@ -76,6 +76,5 @@ Created for educational purposes as part of CityStudio Abbotsford initiative.
 ## 🙏 Acknowledgments
 
 - City of Abbotsford CityStudio
-- Anthropic (Claude AI)
 
 - [Your Professor/Instructor]
