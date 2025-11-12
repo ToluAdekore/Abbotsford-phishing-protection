@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Safety Assistant - City of Abbotsford</title>
+    
+    <!-- React -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* City of Abbotsford Brand Colors */
+        :root {
+            --city-blue: #003087;
+            --city-green: #7AB800;
+            --city-dark-blue: #002060;
+            --city-light-blue: #E6F0FF;
+            --city-gray: #4A4A4A;
+        }
+        
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        
+        .city-header {
+            background: linear-gradient(135deg, var(--city-blue) 0%, var(--city-dark-blue) 100%);
+        }
+        
+        .city-accent {
+            color: var(--city-green);
+        }
+        
+        .city-button {
+            background: var(--city-green);
+            color: white;
+        }
+        
+        .city-button:hover {
+            background: #6A9E00;
+        }
+        
+        .city-link {
+            color: var(--city-blue);
+        }
+        
+        .city-link:hover {
+            color: var(--city-green);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useRef, useEffect } = React;
+
+        // SVG Icons
+        const Shield = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+        );
+
+        const Send = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+        );
+
+        const Bot = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/>
+            </svg>
+        );
+
+        const User = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+        );
+
+        const AlertTriangle = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+        );
+
+        const CheckCircle = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+        );
+
+        const Phone = () => (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+        );
+
+        const Home = () => (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+        );
+
+        const ExternalLink = () => (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+        );
+
+        const AISafetyAssistant = () => {
+            const [messages, setMessages] = useState([
+                {
+                    role: 'assistant',
+                    content: "Welcome to the City of Abbotsford's AI Safety Assistant!\n\nI'm here to help you stay safe from scams and phishing attempts. I can help you:\n\n• Verify suspicious emails\n• Check if websites are legitimate\n• Identify phone scams\n• Learn about common fraud tactics\n• Get guidance on protecting yourself\n\nHow can I help protect you today?",
+                    timestamp: new Date()
+                }
+            ]);
+            const [input, setInput] = useState('');
+            const [isTyping, setIsTyping] = useState(false);
+            const messagesEndRef = useRef(null);
+
+            const scrollToBottom = () => {
+                messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            };
+
+            useEffect(() => {
+                scrollToBottom();
+            }, [messages, isTyping]);
+
+            const analyzeMessage = async (userMessage) => {
+                const lowerMessage = userMessage.toLowerCase();
+
+                // Gift card scams
+                if (lowerMessage.includes('gift card') || lowerMessage.includes('itunes') || lowerMessage.includes('google play')) {
+                    return {
+                        content: "🚨 **SCAM ALERT - STOP IMMEDIATELY**\n\nThe City of Abbotsford will NEVER ask for payment via gift cards. This is 100% a scam.\n\n**Take these steps NOW:**\n\n1. **STOP** - Do not buy or send any gift cards\n2. **HANG UP** - End the call or ignore the message\n3. **REPORT** - Contact us at 604-864-5500\n4. **If you already sent gift cards:**\n   • Contact the gift card company immediately\n   • Call Abbotsford Police: 604-859-5225\n   • Report to Canadian Anti-Fraud Centre: 1-888-495-8501\n\nYou did the right thing by checking!",
+                        type: 'danger'
+                    };
+                }
+
+                // Email verification
+                if (lowerMessage.includes('@abbotsford.ca')) {
+                    return {
+                        content: "✅ **OFFICIAL CITY EMAIL VERIFIED**\n\n@abbotsford.ca is the City of Abbotsford's official email domain.\n\n**However, please remember:**\n\n• Always verify unexpected requests by calling 604-864-5500\n• We will NEVER ask for passwords via email\n• Be cautious with attachments from unknown senders\n• When in doubt, contact us directly\n\n**What is this email asking you to do?** I can help verify if the request is legitimate.",
+                        type: 'safe'
+                    };
+                }
+
+                // Fake email domains
+                if (lowerMessage.includes('@') && !lowerMessage.includes('@abbotsford.ca')) {
+                    const emailMatch = userMessage.match(/[\w.-]+@[\w.-]+\.\w+/);
+                    if (emailMatch) {
+                        return {
+                            content: `⚠️ **NOT AN OFFICIAL CITY EMAIL**\n\nThe email address **${emailMatch[0]}** is NOT from the City of Abbotsford.\n\n**Official city emails ONLY use:** @abbotsford.ca\n\n**This is likely a scam. Take action:**\n\n1. **DO NOT** reply to the email\n2. **DO NOT** click any links\n3. **DO NOT** download attachments\n4. **DO NOT** provide personal information\n5. **DELETE** the email immediately\n6. **VERIFY** - Call us at 604-864-5500 if concerned\n\n**Report this scam:**\n• Canadian Anti-Fraud Centre: 1-888-495-8501\n• [Report online](https://antifraudcentre-centreantifraude.ca/report-signalez-eng.htm)`,
+                            type: 'danger'
+                        };
+                    }
+                }
+
+                // Website verification
+                if (lowerMessage.includes('http') || lowerMessage.includes('www.') || lowerMessage.includes('.com') || lowerMessage.includes('.ca')) {
+                    const urlMatch = userMessage.match(/https?:\/\/[^\s]+|www\.[^\s]+|[a-z0-9-]+\.(com|ca|net|org)[^\s]*/i);
+                    if (urlMatch) {
+                        const url = urlMatch[0].toLowerCase();
+                        if (url.includes('abbotsford.ca')) {
+                            return {
+                                content: "✅ **OFFICIAL CITY WEBSITE CONFIRMED**\n\n**abbotsford.ca** is our official website.\n\n**Safety checklist before proceeding:**\n\n• ✓ Look for the padlock icon 🔒 in your browser\n• ✓ URL starts with https:// (secure)\n• ✓ Spelling is exactly: abbotsford.ca\n• ✓ No extra characters or numbers\n\n**Safe city services:**\n• Pay utilities: [services.abbotsford.ca](https://services.abbotsford.ca)\n• Building permits: [abbotsford.ca/buildingpermits](https://www.abbotsford.ca/buildingpermits)\n• Report issues: [abbotsford.ca/report-issue](https://www.abbotsford.ca/report-issue)\n\n**Questions?** Call 604-864-5500",
+                                type: 'safe'
+                            };
+                        } else if (url.includes('abbotsford')) {
+                            return {
+                                content: `🚨 **FAKE WEBSITE WARNING**\n\n**This is NOT the official City of Abbotsford website!**\n\n✗ Suspicious URL: ${urlMatch[0]}\n✓ Official website: **www.abbotsford.ca**\n\n**This is a common phishing tactic:**\nScammers create fake websites with similar names to steal your information.\n\n**IMMEDIATE ACTIONS:**\n\n1. **CLOSE** this website immediately\n2. **DO NOT** enter any personal information\n3. **DO NOT** log in or create accounts\n4. **CLEAR** your browser history\n5. **TYPE** www.abbotsford.ca directly in your browser\n\n**If you entered information:**\n• Change your passwords immediately\n• Monitor your accounts\n• Call us at 604-864-5500\n• Report to police: 604-859-5225`,
+                                type: 'danger'
+                            };
+                        }
+                    }
+                }
+
+                // Phone call scams
+                if (lowerMessage.includes('call') || lowerMessage.includes('phone')) {
+                    if (lowerMessage.includes('tax') || lowerMessage.includes('payment') || lowerMessage.includes('pay') || lowerMessage.includes('owe') || lowerMessage.includes('fine')) {
+                        return {
+                            content: "🚨 **PHONE SCAM ALERT**\n\n**The City of Abbotsford will NEVER:**\n\n✗ Call demanding immediate payment\n✗ Threaten arrest or legal action over the phone\n✗ Ask for payment via gift cards, cryptocurrency, or wire transfer\n✗ Request credit card details over the phone\n✗ Create urgent pressure to pay immediately\n\n**WHAT TO DO RIGHT NOW:**\n\n1. **HANG UP** - Do not engage with the caller\n2. **DO NOT** call back any number they provided\n3. **VERIFY** - Call us directly at 604-864-5500\n4. **REPORT** - Contact police at 604-859-5225\n5. **SPREAD AWARENESS** - Tell friends and family\n\n**Did you provide any information to them?** If yes, please tell me what you shared so I can help you take appropriate action.",
+                            type: 'danger'
+                        };
+                    }
+                    return {
+                        content: "📞 **Let me help verify this phone call**\n\nPhone scams are very common. To assess if this call was legitimate, please tell me:\n\n• What did the caller say they wanted?\n• Did they ask for money or personal information?\n• Did they create urgency or make threats?\n• What phone number appeared on your call display?\n• Did they ask you to call a specific number?\n\n**Remember:** You can always verify by calling the City directly at **604-864-5500**\n\nShare the details and I'll help you determine if this was a scam.",
+                        type: 'info'
+                    };
+                }
+
+                // Password/personal info requests
+                if (lowerMessage.includes('password') || lowerMessage.includes('sin') || lowerMessage.includes('social insurance') || lowerMessage.includes('credit card') || lowerMessage.includes('banking')) {
+                    return {
+                        content: "🚨 **CRITICAL WARNING - DO NOT PROCEED**\n\n**The City of Abbotsford will NEVER ask you for:**\n\n✗ Passwords or PINs\n✗ Social Insurance Numbers (SIN)\n✗ Full credit card numbers (except through secure payment portals)\n✗ Banking login credentials\n✗ Security question answers\n\n**IMMEDIATE ACTION REQUIRED:**\n\n1. **STOP** - Do not provide this information\n2. **DO NOT** click any links requesting this info\n3. **HANG UP** if on phone / **DELETE** if email\n\n**If you already shared information:**\n\n🆘 **ACT IMMEDIATELY:**\n• **Banking info** → Call your bank NOW to freeze accounts\n• **Passwords** → Change all passwords immediately\n• **SIN/Personal info** → Call Service Canada: 1-800-622-6232\n• **Credit cards** → Contact your card company immediately\n\n**Report the incident:**\n• City of Abbotsford: 604-864-5500\n• Abbotsford Police: 604-859-5225\n• Canadian Anti-Fraud Centre: 1-888-495-8501\n\n**What information did you share?** Tell me so I can provide specific guidance.",
+                        type: 'danger'
+                    };
+                }
+
+                // What is phishing
+                if (lowerMessage.includes('what is') || lowerMessage.includes('explain') || lowerMessage.includes('tell me about')) {
+                    if (lowerMessage.includes('phishing') || lowerMessage.includes('scam')) {
+                        return {
+                            content: "📚 **Understanding Phishing & Scams**\n\n**What is Phishing?**\nPhishing is when criminals pretend to be a trusted organization (like the City, your bank, or CRA) to steal your personal information or money.\n\n**Common Phishing Tactics:**\n\n🎣 **Fake Emails** - Look official but have wrong email addresses\n🎣 **Fake Websites** - Similar URLs (abbotsford-city.com instead of abbotsford.ca)\n🎣 **Urgent Messages** - \"Act now or lose access!\"\n🎣 **Phone Calls** - Claiming you owe money or won a prize\n🎣 **Text Messages** - Links to fake payment portals\n\n**How to Protect Yourself:**\n\n✓ Check email addresses carefully (@abbotsford.ca only)\n✓ Look for the padlock icon 🔒 on websites\n✓ Never share passwords or PINs\n✓ Verify by calling us directly: 604-864-5500\n✓ Don't click links in unexpected emails\n✓ Take your time - scammers create false urgency\n\n**Questions?** I'm here to help! Describe any suspicious situation and I'll guide you.",
+                            type: 'info'
+                        };
+                    }
+                }
+
+                // Urgency tactics
+                if (lowerMessage.includes('urgent') || lowerMessage.includes('immediately') || lowerMessage.includes('right now') || lowerMessage.includes('deadline') || lowerMessage.includes('today')) {
+                    return {
+                        content: "⚠️ **RED FLAG DETECTED: FALSE URGENCY**\n\nYou mentioned something **urgent or immediate**. This is a major warning sign!\n\n**Scammers use urgency to:**\n• Prevent you from thinking clearly\n• Stop you from verifying information\n• Pressure you into making mistakes\n• Create panic and fear\n\n**The REAL City of Abbotsford:**\n✓ Sends official letters for important matters\n✓ Gives reasonable deadlines (weeks, not hours)\n✓ Never threatens immediate consequences\n✓ Allows time to verify and ask questions\n✓ Provides multiple contact options\n\n**Take a moment to:**\n1. **BREATHE** - Don't let pressure tactics work\n2. **VERIFY** - Call 604-864-5500 directly\n3. **THINK** - Why is this so urgent?\n4. **CHECK** - Did you receive official mail about this?\n\n**Tell me more about what they're saying is urgent.** I'll help you determine if it's real.",
+                        type: 'warning'
+                    };
+                }
+
+                // Already gave information
+                if (lowerMessage.includes('already gave') || lowerMessage.includes('i told them') || lowerMessage.includes('i sent') || lowerMessage.includes('i paid') || lowerMessage.includes('i shared')) {
+                    return {
+                        content: "🆘 **IMMEDIATE ACTION REQUIRED**\n\nI understand you may have shared information with a potential scammer. **Don't panic** - let's act quickly to protect you.\n\n**DO THESE STEPS RIGHT NOW:**\n\n**1️⃣ If you gave banking/credit card info:**\n   • Call your bank/credit card company IMMEDIATELY\n   • Request to freeze your accounts\n   • Report the fraudulent transaction\n   • Request new cards\n\n**2️⃣ If you gave passwords:**\n   • Change ALL passwords immediately\n   • Enable two-factor authentication\n   • Check for unauthorized access\n\n**3️⃣ If you sent money or gift cards:**\n   • Contact the payment service immediately\n   • Call your bank to try to reverse the transaction\n   • File a police report (time-sensitive)\n\n**4️⃣ Report the fraud:**\n   • City of Abbotsford: 604-864-5500\n   • Abbotsford Police: 604-859-5225 (non-emergency)\n   • Canadian Anti-Fraud Centre: 1-888-495-8501\n   • [Report online](https://antifraudcentre-centreantifraude.ca/report-signalez-eng.htm)\n\n**What specific information did you provide?** Tell me so I can give you targeted next steps.",
+                        type: 'danger'
+                    };
+                }
+
+                // Default helpful response
+                return {
+                    content: "👋 **I'm here to help keep you safe!**\n\nI can assist you with:\n\n**📧 Email Verification**\n\"I got an email from taxes@example.com - is it real?\"\n\n**🌐 Website Safety**\n\"Is this link safe to click? [paste URL]\"\n\n**📞 Phone Call Verification**\n\"Someone called saying I owe money - is this legitimate?\"\n\n**🔐 Security Guidance**\n\"They're asking for my password/SIN - should I give it?\"\n\n**📚 Learn About Scams**\n\"What is phishing? How do I protect myself?\"\n\n**Please share details about your situation:**\n• Email addresses or website URLs\n• What they're asking you to do\n• Any phone numbers involved\n• The exact message you received\n\nThe more details you provide, the better I can help protect you!\n\n**Remember:** You can always verify by calling us directly at **604-864-5500**",
+                    type: 'info'
+                };
+            };
+
+            const handleSend = async () => {
+                if (!input.trim()) return;
+
+                const userMessage = {
+                    role: 'user',
+                    content: input,
+                    timestamp: new Date()
+                };
+
+                setMessages(prev => [...prev, userMessage]);
+                const currentInput = input;
+                setInput('');
+                setIsTyping(true);
+
+                setTimeout(async () => {
+                    const response = await analyzeMessage(currentInput);
+                    
+                    const assistantMessage = {
+                        role: 'assistant',
+                        content: response.content,
+                        type: response.type,
+                        timestamp: new Date()
+                    };
+
+                    setMessages(prev => [...prev, assistantMessage]);
+                    setIsTyping(false);
+                }, 1500);
+            };
+
+            const handleKeyPress = (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                }
+            };
+
+            const quickPrompts = [
+                "Is this email real?",
+                "Someone called about taxes",
+                "Check if this website is safe",
+                "What is phishing?",
+                "They want my password"
+            ];
+
+            return (
+                <div style={{minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#F5F5F5'}}>
+                    {/* City Header */}
+                    <div className="city-header" style={{boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}}>
+                        <div style={{maxWidth: '1200px', margin: '0 auto', padding: '0 20px'}}>
+                            {/* Top Bar */}
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.2)'}}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '8px', color: 'white', fontSize: '14px'}}>
+                                    <Home />
+                                    <a href="https://www.abbotsford.ca" target="_blank" className="city-link" style={{color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px'}}>
+                                        Back to abbotsford.ca
+                                        <ExternalLink />
+                                    </a>
+                                </div>
+                                <div style={{color: 'white', fontSize: '14px'}}>
+                                    <Phone style={{display: 'inline', width: '16px', height: '16px', marginRight: '6px'}} />
+                                    <strong>604-864-5500</strong>
+                                </div>
+                            </div>
+                            
+                            {/* Main Header */}
+                            <div style={{padding: '24px 0'}}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px'}}>
+                                    <div style={{width: '56px', height: '56px', background: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#003087'}}>
+                                        <Shield style={{width: '32px', height: '32px'}} />
+                                    </div>
+                                    <div>
+                                        <h1 style={{margin: 0, color: 'white', fontSize: '32px', fontWeight: 'bold', lineHeight: '1.2'}}>
+                                            AI Safety Assistant
+                                        </h1>
+                                        <p style={{margin: '4px 0 0 0', color: '#E6F0FF', fontSize: '18px'}}>
+                                            Protecting Abbotsford residents from scams and fraud
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                {/* Service Badge */}
+                                <div style={{display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(122, 184, 0, 0.2)', padding: '8px 16px', borderRadius: '20px', border: '2px solid #7AB800'}}>
+                                    <span style={{width: '8px', height: '8px', background: '#7AB800', borderRadius: '50%', animation: 'pulse 2s infinite'}}></span>
+                                    <span style={{color: 'white', fontWeight: '600'}}>City Service - Free & Confidential</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Chat Container */}
+                    <div style={{flex: 1, display: 'flex', flexDirection: 'column', maxWidth: '1200px', width: '100%', margin: '0 auto'}}>
+                        {/* Messages */}
+                        <div style={{flex: 1, overflowY: 'auto', padding: '24px 20px'}}>
+                            <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
+                                {messages.map((message, idx) => (
+                                    <div
+                                        key={idx}
+                                        style={{
+                                            display: 'flex',
+                                            gap: '12px',
+                                            justifyContent: message.role === 'user' ? 'flex-end' : 'flex-start'
+                                        }}
+                                    >
+                                        {message.role === 'assistant' && (
+                                            <div style={{flexShrink: 0}}>
+                                                <div style={{width: '44px', height: '44px', borderRadius: '50%', background: '#003087', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'}}>
+                                                    <Bot />
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        <div
+                                            style={{
+                                                maxWidth: '75%',
+                                                borderRadius: '16px',
+                                                padding: '16px 20px',
+                                                fontSize: '16px',
+                                                lineHeight: '1.6',
+                                                ...(message.role === 'user'
+                                                    ? { background: '#003087', color: 'white', boxShadow: '0 2px 8px rgba(0,48,135,0.3)' }
+                                                    : message.type === 'danger'
+                                                    ? { background: '#FEE', border: '3px solid #DC2626', color: '#1F2937' }
+                                                    : message.type === 'warning'
+                                                    ? { background: '#FFF7ED', border: '3px solid #F59E0B', color: '#1F2937' }
+                                                    : message.type === 'safe'
+                                                    ? { background: '#F0FDF4', border: '3px solid #7AB800', color: '#1F2937' }
+                                                    : { background: 'white', border: '2px solid #E5E7EB', color: '#1F2937', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' })
+                                            }}
+                                        >
+                                            {message.type === 'danger' && (
+                                                <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px'}}>
+                                                    <AlertTriangle style={{width: '24px', height: '24px', color: '#DC2626'}} />
+                                                    <span style={{fontWeight: 'bold', color: '#DC2626', fontSize: '18px'}}>⚠️ Security Alert</span>
+                                                </div>
+                                            )}
+                                            {message.type === 'safe' && (
+                                                <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px'}}>
+                                                    <CheckCircle style={{width: '24px', height: '24px', color: '#7AB800'}} />
+                                                    <span style={{fontWeight: 'bold', color: '#7AB800', fontSize: '18px'}}>✓ Verified Safe</span>
+                                                </div>
+                                            )}
+                                            <div style={{whiteSpace: 'pre-wrap'}}>{message.content}</div>
+                                            <div style={{marginTop: '12px', fontSize: '13px', opacity: 0.7}}>
+                                                {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                        </div>
+
+                                        {message.role === 'user' && (
+                                            <div style={{flexShrink: 0}}>
+                                                <div style={{width: '44px', height: '44px', borderRadius: '50%', background: '#4A4A4A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'}}>
+                                                    <User />
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+
+                                {isTyping && (
+                                    <div style={{display: 'flex', gap: '12px', justifyContent: 'flex-start'}}>
+                                        <div style={{flexShrink: 0}}>
+                                            <div style={{width: '44px', height: '44px', borderRadius: '50%', background: '#003087', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white'}}>
+                                                <Bot />
+                                            </div>
+                                        </div>
+                                        <div style={{background: 'white', border: '2px solid #E5E7EB', borderRadius: '16px', padding: '16px 20px'}}>
+                                            <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                                                <div style={{width: '10px', height: '10px', background: '#7AB800', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out'}}></div>
+                                                <div style={{width: '10px', height: '10px', background: '#7AB800', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out', animationDelay: '0.2s'}}></div>
+                                                <div style={{width: '10px', height: '10px', background: '#7AB800', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out', animationDelay: '0.4s'}}></div>
+                                                <span style={{marginLeft: '8px', color: '#4A4A4A', fontSize: '14px'}}>Analyzing your message...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                <div ref={messagesEndRef} />
+                            </div>
+                        </div>
+
+                        {/* Quick Prompts */}
+                        {messages.length === 1 && (
+                            <div style={{padding: '16px 20px', background: 'white', borderTop: '1px solid #E5E7EB'}}>
+                                <p style={{margin: '0 0 12px 0', fontWeight: '600', color: '#4A4A4A', fontSize: '15px'}}>
+                                    💡 Quick Questions You Can Ask:
+                                </p>
+                                <div style={{display: 'flex', flexWrap: 'wrap', gap: '10px'}}>
+                                    {quickPrompts.map((prompt, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setInput(prompt)}
+                                            style={{
+                                                padding: '10px 18px',
+                                                background: '#E6F0FF',
+                                                border: '2px solid #003087',
+                                                borderRadius: '24px',
+                                                color: '#003087',
+                                                fontSize: '14px',
+                                                fontWeight: '600',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s'
+                                            }}
+                                            onMouseOver={(e) => {
+                                                e.target.style.background = '#003087';
+                                                e.target.style.color = 'white';
+                                            }}
+                                            onMouseOut={(e) => {
+                                                e.target.style.background = '#E6F0FF';
+                                                e.target.style.color = '#003087';
+                                            }}
+                                        >
+                                            {prompt}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Input Area */}
+                        <div style={{background: 'white', borderTop: '2px solid #E5E7EB', padding: '20px', boxShadow: '0 -2px 10px rgba(0,0,0,0.05)'}}>
+                            <div style={{maxWidth: '1200px', margin: '0 auto'}}>
+                                <div style={{display: 'flex', gap: '12px', marginBottom: '16px'}}>
+                                    <textarea
+                                        value={input}
+                                        onChange={(e) => setInput(e.target.value)}
+                                        onKeyPress={handleKeyPress}
+                                        placeholder="Describe your situation... (Press Enter to send)"
+                                        style={{
+                                            flex: 1,
+                                            padding: '16px',
+                                            border: '2px solid #003087',
+                                            borderRadius: '12px',
+                                            fontSize: '16px',
+                                            resize: 'none',
+                                            fontFamily: 'Arial, sans-serif',
+                                            outline: 'none'
+                                        }}
+                                        rows="2"
+                                    />
+                                    <button
+                                        onClick={handleSend}
+                                        disabled={!input.trim() || isTyping}
+                                        className="city-button"
+                                        style={{
+                                            padding: '16px 32px',
+                                            borderRadius: '12px',
+                                            border: 'none',
+                                            fontWeight: 'bold',
+                                            fontSize: '16px',
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            transition: 'all 0.2s',
+                                            opacity: (!input.trim() || isTyping) ? 0.5 : 1
+                                        }}
+                                    >
+                                        <Send />
+                                        Send
+                                    </button>
+                                </div>
+                                
+                                {/* Contact Info Banner */}
+                                <div style={{background: '#E6F0FF', padding: '16px', borderRadius: '8px', border: '2px solid #003087'}}>
+                                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px'}}>
+                                        <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                                            <Phone style={{color: '#003087', width: '20px', height: '20px'}} />
+                                            <div>
+                                                <div style={{fontWeight: 'bold', color: '#003087', fontSize: '16px'}}>
+                                                    Need to speak with someone?
+                                                </div>
+                                                <div style={{color: '#4A4A4A', fontSize: '14px'}}>
+                                                    Call us: <strong style={{color: '#003087'}}>604-864-5500</strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style={{display: 'flex', gap: '12px', flexWrap: 'wrap'}}>
+                                            <a
+                                                href="https://www.abbotsford.ca/report-issue"
+                                                target="_blank"
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    background: '#003087',
+                                                    color: 'white',
+                                                    textDecoration: 'none',
+                                                    borderRadius: '6px',
+                                                    fontSize: '14px',
+                                                    fontWeight: '600',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px'
+                                                }}
+                                            >
+                                                Report an Issue
+                                                <ExternalLink />
+                                            </a>
+                                            <a
+                                                href="https://www.abbotsford.ca"
+                                                target="_blank"
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    background: 'white',
+                                                    color: '#003087',
+                                                    textDecoration: 'none',
+                                                    borderRadius: '6px',
+                                                    fontSize: '14px',
+                                                    fontWeight: '600',
+                                                    border: '2px solid #003087',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px'
+                                                }}
+                                            >
+                                                City Website
+                                                <ExternalLink />
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Footer Disclaimer */}
+                                <div style={{marginTop: '16px', padding: '12px', background: '#FFF7ED', borderRadius: '6px', border: '1px solid #F59E0B'}}>
+                                    <p style={{margin: 0, fontSize: '13px', color: '#92400E', lineHeight: '1.6'}}>
+                                        <strong>⚠️ Important:</strong> This AI assistant provides guidance but cannot replace official city communication or legal advice. 
+                                        Always verify important matters by calling 604-864-5500 or visiting our office at 32315 South Fraser Way.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* City Footer */}
+                    <div style={{background: '#003087', color: 'white', padding: '24px 20px', marginTop: 'auto'}}>
+                        <div style={{maxWidth: '1200px', margin: '0 auto', textAlign: 'center'}}>
+                            <div style={{marginBottom: '16px'}}>
+                                <h3 style={{margin: '0 0 8px 0', fontSize: '18px', fontWeight: 'bold'}}>
+                                    City of Abbotsford
+                                </h3>
+                                <p style={{margin: 0, fontSize: '14px', opacity: 0.9}}>
+                                    32315 South Fraser Way, Abbotsford, BC V2T 1W7
+                                </p>
+                            </div>
+                            <div style={{display: 'flex', justifyContent: 'center', gap: '24px', flexWrap: 'wrap', fontSize: '14px', marginBottom: '16px'}}>
+                                <a href="https://www.abbotsford.ca" target="_blank" style={{color: 'white', textDecoration: 'none'}}>
+                                    Website
+                                </a>
+                                <a href="https://www.abbotsford.ca/city-hall/contact-us" target="_blank" style={{color: 'white', textDecoration: 'none'}}>
+                                    Contact Us
+                                </a>
+                                <a href="https://www.abbotsford.ca/city-hall/freedom-information-protection-privacy" target="_blank" style={{color: 'white', textDecoration: 'none'}}>
+                                    Privacy Policy
+                                </a>
+                                <a href="https://antifraudcentre-centreantifraude.ca" target="_blank" style={{color: 'white', textDecoration: 'none'}}>
+                                    Report Fraud
+                                </a>
+                            </div>
+                            <div style={{paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.2)', fontSize: '13px', opacity: 0.8}}>
+                                <p style={{margin: 0}}>
+                                    © 2025 City of Abbotsford. All rights reserved. | AI Safety Assistant - Protecting Our Community
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Animations */}
+                    <style>{`
+                        @keyframes bounce {
+                            0%, 80%, 100% {
+                                transform: translateY(0);
+                            }
+                            40% {
+                                transform: translateY(-10px);
+                            }
+                        }
+                        @keyframes pulse {
+                            0%, 100% {
+                                opacity: 1;
+                            }
+                            50% {
+                                opacity: 0.5;
+                            }
+                        }
+                    `}</style>
+                </div>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(<AISafetyAssistant />, document.getElementById('root'));
+    </script>
+</body>
+</html>
